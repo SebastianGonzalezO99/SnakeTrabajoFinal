@@ -42,6 +42,9 @@ public class Board extends javax.swing.JPanel {
                     if (b.getState() == ButtonState.CLOSE) {
                         eraseZeros(b.getRow(), b.getCol());
                     }
+                    if (b.getState() == ButtonState.OPEN && matrix[b.getRow()][b.getCol()] == -1) {
+                        exploteBombs();
+                    }
                 }
             }
         };
@@ -80,7 +83,6 @@ public class Board extends javax.swing.JPanel {
         printMatrix(numRows, numCols);
     }
 
-    ;
     public void initMatrix(int rows, int cols) {
         matrix = new int[rows][cols];
         buttonMatrix = new MineButton[rows][cols];
@@ -210,8 +212,18 @@ public class Board extends javax.swing.JPanel {
                 }
             }
         }
-
     }
+
+    public void exploteBombs() {
+        for (int r = 0; r < ConfigData.getInstance().getNumRows(); r++) {
+            for (int c = 0; c < ConfigData.getInstance().getNumCols(); c++) {
+                if (matrix[r][c] == -1) {
+                    buttonMatrix[r][c].open();
+                }
+            }
+        }
+    }
+    
 
     public boolean isValid(int rows, int cols) {
         return rows >= 0 && rows < ConfigData.getInstance().getNumRows()
