@@ -14,6 +14,8 @@ import static com.mycompany.minesweepersalxixilla.LevelType.INTERMEDIATE;
  */
 public class ConfigData {
     
+    public static boolean gameOver = false;
+    
     public static final int NUM_ROWS_BEGINNER = 10;
     public static final int NUM_COLS_BEGINNER = 10;
     public static final int RATIO_BEGINNER = 10; //10%
@@ -30,8 +32,28 @@ public class ConfigData {
     private static ConfigData instance;
     private LevelType level;
     
+    public int getNumBombs() {
+        return getNumRows() * getNumCols() * getBombsRatio() / 100;
+    }
+    
+    public boolean getGameOver(){
+        return gameOver;
+    }
+    
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver; 
+    }
+    
     private ConfigData() {
         level = LevelType.BEGINNER;
+    }
+    
+    public void setLevel(LevelType level){
+        this.level = level;
+    }
+    
+    public LevelType getLevel(){
+        return level;
     }
     
     public static ConfigData getInstance() {

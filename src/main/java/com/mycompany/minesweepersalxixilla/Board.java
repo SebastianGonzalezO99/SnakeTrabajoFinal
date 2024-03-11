@@ -6,14 +6,20 @@ package com.mycompany.minesweepersalxixilla;
 
 import static com.mycompany.minesweepersalxixilla.MineButton.BUTTON_SIZE;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
+import java.util.concurrent.TimeUnit;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.OverlayLayout;
+import javax.swing.Timer;
 
 /**
  *
@@ -25,6 +31,8 @@ public class Board extends javax.swing.JPanel {
     private MineButton[][] buttonMatrix;
     private static Icon iconButton = null;
     private static MouseAdapter mouseAdapter = null;
+    private int currentRow;
+    private int currentCol;
 
     /**
      * Creates new form Board
@@ -42,7 +50,8 @@ public class Board extends javax.swing.JPanel {
                     if (b.getState() == ButtonState.CLOSE) {
                         eraseZeros(b.getRow(), b.getCol());
                     }
-                    if (b.getState() == ButtonState.OPEN && matrix[b.getRow()][b.getCol()] == -1) {
+                    if (b.getState() == ButtonState.OPEN
+                            && matrix[b.getRow()][b.getCol()] == -1) {
                         exploteBombs();
                     }
                 }
@@ -51,6 +60,8 @@ public class Board extends javax.swing.JPanel {
     }
 
     public void initBoard() {
+        currentRow = 0;
+        currentCol = 0;
         Dimension panelDimension = new Dimension(MineButton.BUTTON_SIZE, MineButton.BUTTON_SIZE);
         Image image = new ImageIcon(getClass().getResource("/images/bomb.png")).getImage();
         Image newimg = image.getScaledInstance(BUTTON_SIZE, BUTTON_SIZE, java.awt.Image.SCALE_SMOOTH);
@@ -77,6 +88,9 @@ public class Board extends javax.swing.JPanel {
                 label.setHorizontalAlignment(JLabel.CENTER);
                 label.setFont(new Font("Oswald", Font.BOLD, 20));
                 panel.add(label);
+                if(matrix[row][col] == -1){
+                    panel.setBackground(Color.red);
+                }
                 add(panel);
             }
         }
@@ -95,7 +109,7 @@ public class Board extends javax.swing.JPanel {
 
     public void addBombs(int numRows, int numCols) {
         int bombCounter = 0;
-        while (bombCounter < ConfigData.getInstance().getBombsRatio()) {
+        while (bombCounter < ConfigData.getInstance().getNumBombs()) {
             int row = (int) (Math.random() * ConfigData.getInstance().getNumRows());
             int col = (int) (Math.random() * ConfigData.getInstance().getNumCols());
             if (matrix[row][col] != -1) {
@@ -215,14 +229,46 @@ public class Board extends javax.swing.JPanel {
     }
 
     public void exploteBombs() {
-        for (int r = 0; r < ConfigData.getInstance().getNumRows(); r++) {
-            for (int c = 0; c < ConfigData.getInstance().getNumCols(); c++) {
-                if (matrix[r][c] == -1) {
-                    buttonMatrix[r][c].open();
+        deleteMouseAdapter();
+        ConfigData.getInstance().setGameOver(true);
+        int numRows = ConfigData.getInstance().getNumRows();
+        int numCols = ConfigData.getInstance().getNumCols();
+
+        Timer timer = new Timer(40, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentRow < numRows) {
+                    if (matrix[currentRow][currentCol] == -1) {
+                        buttonMatrix[currentRow][currentCol].open();
+                    }
+
+                    currentCol++;
+
+                    if (currentCol >= numCols) {
+                        currentCol = 0;
+                        currentRow++;
+                    }
+                } else {
+                    ConfigData.getInstance().setGameOver(false);
+                    ((Timer) e.getSource()).stop();
+                    JOptionPane.showMessageDialog(null, "GAME OVER!!!", "Error", JOptionPane.ERROR_MESSAGE);// Detener el temporizador cuando todas las casillas estén abiertas
                 }
+            }
+        });
+
+        timer.start();
+    }
+
+    public void deleteMouseAdapter() {
+        int numRows = ConfigData.getInstance().getNumRows();
+        int numCols = ConfigData.getInstance().getNumCols();
+        for (int row = 0; row < numRows; row++) {
+            for (int col = 0; col < numCols; col++) {
+                buttonMatrix[row][col].removeMouseListener(mouseAdapter);
             }
         }
     }
+
     
 
     public boolean isValid(int rows, int cols) {
