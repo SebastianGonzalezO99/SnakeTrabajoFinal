@@ -2,12 +2,12 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
  */
-package com.mycompany.minesweepersalxixilla;
+package com.mycompany.snake;
 
 /**
- *
- * @author alu10654799
+ *Este es un enum en donde enlistamos las 4 direcciones de la sake
+ * @author alu13114532
  */
-public enum LevelType {
-    BEGINNER, INTERMEDIATE, DIFFICULT
+public enum Direction {
+    UP, DOWN, LEFT, RIGHT;
 }
